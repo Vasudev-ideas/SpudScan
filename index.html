@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetal Ultrasound Plane Detection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .upload-section { margin-bottom: 20px; }
+        .result { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Fetal Ultrasound Plane Detection</h1>
+    
+    <div class="upload-section">
+        <h2>Upload Image</h2>
+        <input type="file" id="imageFile" accept="image/*">
+        <button onclick="detectImage()">Detect Planes</button>
+        <div id="imageResult" class="result"></div>
+    </div>
+    
+    <div class="upload-section">
+        <h2>Upload Video</h2>
+        <input type="file" id="videoFile" accept="video/*">
+        <button onclick="detectVideo()">Detect Planes</button>
+        <div id="videoResult" class="result"></div>
+    </div>
+
+    <script>
+        async function detectImage() {
+            const fileInput = document.getElementById('imageFile');
+            const resultDiv = document.getElementById('imageResult');
+            if (!fileInput.files[0]) return alert('Select an image');
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('http://localhost:5000/detect_image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                resultDiv.innerHTML = '<h3>Detections:</h3>' + JSON.stringify(data.detections, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = '<p>Error: ' + error.message + '</p>';
+            }
+        }
+        
+        async function detectVideo() {
+            const fileInput = document.getElementById('videoFile');
+            const resultDiv = document.getElementById('videoResult');
+            if (!fileInput.files[0]) return alert('Select a video');
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('http://localhost:5000/detect_video', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                resultDiv.innerHTML = '<h3>Summary:</h3>' + JSON.stringify(data.summary, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = '<p>Error: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>
